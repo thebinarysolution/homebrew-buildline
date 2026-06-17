@@ -375,17 +375,19 @@ iOS-only; to pull an Android release, halt or replace it in the Play Console.
 
 ## Status
 
-The iOS pipeline (M1–M5) is implemented and verified live against a real App Store Connect account;
-the Android pipeline (M6) is implemented and unit-tested, with live Play verification pending.
-Architecture and per-milestone design notes are under `docs/` and `PLAN.md`.
+BuildLine ships **iOS** (App Store Connect / TestFlight) and **Android** (Google Play) today;
+a self-hosted **Web** dashboard is planned.
 
-- **M1 Build** · **M2 Signing** · **M3 Test + TestFlight** — live-verified.
-- **M4 App Store submission** — implemented; the submission write-path is live-validated.
-- **M5 Hardening** — `init`, `--json`, this README, Homebrew tap — done.
-- **M6 Android (Google Play)** — build, signing, ship (testing tracks), and submit (production)
-  implemented and unit-tested; live verification against a real Play account is the remaining step.
+| Platform | build | signing | beta / testing | store release |
+|----------|:-----:|:-------:|:--------------:|:-------------:|
+| iOS      |  ✅   |   ✅    | ✅ TestFlight  | ✅ App Store  |
+| Android  |  ✅   |   ✅    | ✅ Play tracks | ✅ production  |
+| Web      |  —    |   —     |       —        |    planned     |
 
-Not yet: **Web** (a self-hosted server with a web dashboard) — when it lands it will open with the
-same star-bordered **What's Required** box used by the iOS and Android sections above. Also pending:
-the App Store age-rating 2025 questionnaire (set age rating once in the App Store Connect UI for now).
-`buildline init` currently scaffolds iOS only — for Android, copy the `android:` template above.
+A few things worth knowing before you lean on it:
+
+- **Android is new** and not yet exercised against a live Google Play account — try it on a
+  non-critical app first.
+- **`buildline init` scaffolds iOS only** for now; for Android, copy the `android:` template above.
+- **App Store age rating:** set it once in the App Store Connect UI — `submit` does not yet fill the
+  2025 age-rating questionnaire.
