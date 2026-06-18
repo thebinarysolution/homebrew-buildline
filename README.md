@@ -461,8 +461,10 @@ packages today; a containerized-service platform and a self-hosted **Web** dashb
 
 A few things worth knowing before you lean on it:
 
-- **Android and npm are new** and not yet exercised against a live Play account / registry — try each
-  on a non-critical app or a throwaway scoped package first.
+- **npm** is verified end-to-end against the live registry (publish under `beta`, promote to `latest`);
+  it's still young, so eyeball your first real publish.
+- **Android is new** and not yet exercised against a live Google Play account — try it on a
+  non-critical app first.
 - **`buildline init` scaffolds iOS only** for now; for Android/npm, copy the template above.
 - **App Store age rating:** set it once in the App Store Connect UI — `submit` does not yet fill the
   2025 age-rating questionnaire.
