@@ -3,11 +3,11 @@
 <!-- RELEASE -->**Latest release:** [v0.2.1](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.2.1) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
-iOS *or Android* app from source to the store — build, code signing, tests, upload, and submission —
-driven by one `buildline.yml`. On iOS it wraps `xcodebuild` and the App Store Connect API; on Android
-it wraps the Gradle wrapper and the Google Play Developer API. The platform is auto-detected from the
-repo. The value is orchestration and developer experience, not reinventing the toolchains. **For
-Android, jump to [Android (Google Play)](#android-google-play).**
+iOS or Android app — or an npm package — from source to its store/registry, driven by one
+`buildline.yml`. The same verbs (`build` → `ship` → `submit`) run on every platform; only the
+destination changes (App Store / Play / the npm registry). The platform is auto-detected from the
+repo. The value is orchestration and developer experience, not reinventing the toolchains. **Jump to
+[Android](#android-google-play) or [npm](#npm-package-registry).**
 
 ```sh
 buildline init     # discover the project, write buildline.yml
@@ -25,6 +25,8 @@ buildline submit   # push metadata + screenshots, send for App Store review
 - **Android:** **JDK 17+** and a **Gradle project**; for anything past `build`, a **Google Play
   service account** (and the Android SDK build-tools if you build APKs). See
   [Android (Google Play)](#android-google-play).
+- **npm:** **Node.js** + a package manager (npm/pnpm/yarn/bun) and a `package.json`; to publish, an
+  **npm automation token**. See [npm (package registry)](#npm-package-registry).
 - **Go 1.25+** to build the binary (a prebuilt release/Homebrew tap is available).
 
 ## Install
@@ -181,8 +183,9 @@ Verify with `buildline sign status`.
 | `buildline ship` | test → resolve build number → sign → archive → export → upload → poll → beta group. |
 | `buildline submit` | Push metadata + screenshots, prepare the version, attach the build; `--confirm` sends it for review. |
 
-On an **Android** project the same commands run the Gradle + Google Play equivalents — see
-[Android (Google Play)](#android-google-play). Run any command with `--help` for its flags.
+On an **Android** project the same commands run the Gradle + Google Play equivalents
+([Android](#android-google-play)); on an **npm** package they publish to the registry
+([npm](#npm-package-registry)). Run any command with `--help` for its flags.
 
 ## Continuous integration
 
@@ -358,6 +361,74 @@ are sha1-idempotent — a set already matching at Play is skipped, so re-running
 iOS. A failed run or Ctrl-C discards the open Play edit, so nothing is left half-staged. `--cancel` is
 iOS-only; to pull an Android release, halt or replace it in the Play Console.
 
+## npm (package registry)
+
+> ⭐️ ⭐️ ⭐️ **WHAT'S REQUIRED — npm** ⭐️ ⭐️ ⭐️
+>
+> Have these ready **before you start**. `build` alone needs only the first two.
+>
+> - 📦 **Node.js + a package manager** (npm / pnpm / yarn / bun — auto-detected from the lockfile).
+> - 📄 **A `package.json`** with a `name` and `version` (the package identity comes from here, not `app:`).
+> - 🔑 **An npm automation token** with publish rights to your package/scope, as a secret ref. → [setup](#providing-the-npm-token)
+> - 🏷️ **A scope you own** for a scoped package (e.g. `@you/lib`) — published with `--access public`.
+>
+> _Toolchain check:_ `node -v && npm -v`.
+
+The store becomes the **registry**: `ship` publishes under a prerelease **dist-tag** (the TestFlight
+analog), and `submit --confirm` promotes that *exact* version to the production tag — a dist-tag move,
+never a re-publish (npm versions are immutable). The package is auto-detected from `package.json`.
+
+```sh
+# bump the version in package.json, then:
+buildline build                # install deps + run the build script
+buildline ship                 # publish <name>@<version> under the beta dist-tag
+buildline submit               # preview the promotion (does NOT move latest)
+buildline submit --confirm     # move the latest dist-tag to this version
+```
+
+### `buildline.yml` — the `npm` section
+
+`package.json` + the `npm` section are all you need. **Secrets are references, never values** (see
+[above](#secrets-are-references-never-values)).
+
+```yaml
+platform: npm                 # optional — auto-detected from package.json
+
+npm:
+  package_manager: auto       # auto (default) | npm | pnpm | yarn | bun
+  build: true                 # run the "build" script before publish (default true)
+  registry: https://registry.npmjs.org
+  access: public              # public (default) | restricted (scoped packages)
+  provenance: true            # add npm provenance when an OIDC issuer is present (CI)
+  token: env:NPM_TOKEN        # SECRET REF — automation token, never inline
+  ship:   { tag: beta }       # prerelease dist-tag (default beta)
+  submit: { tag: latest }     # production dist-tag (default latest)
+```
+
+### Providing the npm token
+
+1. **npmjs.com → your avatar → Access Tokens → Generate New Token → Granular Access Token** (or a
+   classic **Automation** token). Grant **Read and write** to the package or scope you'll publish.
+2. Reference it (same model as the other platforms) — pick one:
+   - **macOS Keychain** (dev machine): `security add-generic-password -U -a buildline -s buildline-npm-token -w "npm_xxx"` → `token: keychain:buildline-npm-token`
+   - **A file** (`chmod 600`): `token: file:~/.secrets/npm-token`
+   - **An env var** (CI): `export NPM_TOKEN=npm_xxx` → `token: env:NPM_TOKEN`
+
+The token is resolved in memory and written only to a temporary `0600` `.npmrc` that is shredded after
+the run — never logged, never on the command line.
+
+### The npm commands
+
+| Command | What it does on an npm package |
+|---------|--------------------------------|
+| `buildline build` | install dependencies + run the `build` script (via the detected package manager). |
+| `buildline ship` | publish `<name>@<version>` under the **`beta`** dist-tag (refuses if that version is already published). |
+| `buildline submit` | promote that exact version to the **`latest`** dist-tag; **`--confirm`** applies it (without it, the move is previewed only). |
+
+**Provenance** (`npm publish --provenance`) is added automatically when BuildLine detects an OIDC
+issuer (GitHub Actions / a sigstore id-token); off-CI it publishes without it and says so. `--cancel`
+isn't supported — to undo, move the dist-tag back with `npm dist-tag`.
+
 ## Troubleshooting
 
 | Symptom | Fix |
@@ -372,22 +443,27 @@ iOS-only; to pull an Android release, halt or replace it in the Play Console.
 | Play `permission denied` (401/403) | grant the service account release access in Play Console → Users and permissions, and confirm the app exists. |
 | `this version code already exists at Play` | bump `android.version_code` or let it auto-increment. |
 | Play rejects the bundle as not signed by the expected key | the `.aab` must be signed with the upload key registered in Play App Signing — run `buildline sign setup` and register that key. |
+| npm: `<pkg>@<v> is already published` | bump `version` in `package.json` (npm versions are immutable). |
+| npm: `is not on the registry yet — run buildline ship` | `submit` only promotes an already-published version; run `buildline ship` first. |
+| npm: `403 Forbidden` / `ENEEDAUTH` on publish | the `npm.token` lacks publish rights to the package/scope, or a scoped package needs `access: public`. |
 
 ## Status
 
-BuildLine ships **iOS** (App Store Connect / TestFlight) and **Android** (Google Play) today;
-a self-hosted **Web** dashboard is planned.
+BuildLine ships **iOS** (App Store Connect / TestFlight), **Android** (Google Play), and **npm**
+packages today; a containerized-service platform and a self-hosted **Web** dashboard are planned.
 
-| Platform | build | signing | beta / testing | store release |
-|----------|:-----:|:-------:|:--------------:|:-------------:|
-| iOS      |  ✅   |   ✅    | ✅ TestFlight  | ✅ App Store  |
-| Android  |  ✅   |   ✅    | ✅ Play tracks | ✅ production  |
-| Web      |  —    |   —     |       —        |    planned     |
+| Platform | build | signing / provenance | beta / prerelease | production release |
+|----------|:-----:|:--------------------:|:-----------------:|:------------------:|
+| iOS      |  ✅   |  ✅ cert/profile      | ✅ TestFlight     | ✅ App Store       |
+| Android  |  ✅   |  ✅ upload key        | ✅ Play tracks    | ✅ Play production |
+| npm      |  ✅   |  ✅ provenance (OIDC) | ✅ `beta` tag     | ✅ `latest` tag    |
+| Web      |  —    |  —                    |       —           |    planned         |
 
 A few things worth knowing before you lean on it:
 
-- **Android is new** and not yet exercised against a live Google Play account — try it on a
-  non-critical app first.
-- **`buildline init` scaffolds iOS only** for now; for Android, copy the `android:` template above.
+- **Android and npm are new** and not yet exercised against a live Play account / registry — try each
+  on a non-critical app or a throwaway scoped package first.
+- **`buildline init` scaffolds iOS only** for now; for Android/npm, copy the template above.
 - **App Store age rating:** set it once in the App Store Connect UI — `submit` does not yet fill the
   2025 age-rating questionnaire.
+- **npm provenance** needs a CI OIDC issuer (GitHub Actions); off-CI, `ship` publishes without it.
