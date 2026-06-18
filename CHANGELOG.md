@@ -7,6 +7,13 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-18
+
+- `build`/`ship`: **reuse an existing `.xcarchive`** instead of re-archiving (`--reuse-archive` /
+  `--new-archive`, or a prompt when a TTY) — skips the slow `xcodebuild archive`.
+- `ship`: when no beta group is set, **choose a TestFlight group interactively** and save it to
+  `buildline.yml`, instead of hand-typing the name.
+
 ## [0.3.0] - 2026-06-18
 
 - **npm package platform** (first web/Node target): `build`, `ship` (publish under a prerelease

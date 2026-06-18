@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.3.0](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.3.0) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.3.1](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.3.1) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -91,6 +91,12 @@ buildline ship                 # test → build → upload → wait for processi
 buildline submit               # stage metadata/screenshots + version (does NOT submit)
 buildline submit --confirm     # actually send for App Store review
 ```
+
+Two conveniences on `ship`: if a `.xcarchive` already exists it offers to **reuse it** instead of
+re-running the slow `xcodebuild archive` (`--reuse-archive` / `--new-archive` to skip the prompt); and
+if `distribute.beta_groups` isn't set, it **lists your TestFlight groups and saves your choice** to
+`buildline.yml`. To clear TestFlight's "Missing Compliance", set
+`distribute.uses_nonexempt_encryption: false` (most apps) — `ship` declares it on each new build.
 
 ## `buildline.yml` reference
 
