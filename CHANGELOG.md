@@ -7,9 +7,18 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
-- Docs: user-framed **Status** section (platform support table); clearer Homebrew tap-trust note.
-- Release tooling: `scripts/release.sh` now syncs the README + CHANGELOG to the public tap repo and
-  promotes the changelog idempotently.
+## [0.3.0] - 2026-06-18
+
+- **npm package platform** (first web/Node target): `build`, `ship` (publish under a prerelease
+  dist-tag), and `submit --confirm` (promote to the production dist-tag). Auto-detected from
+  `package.json`; provenance via OIDC in CI. Live-verified against npmjs.org.
+- **`ship`/`test` skip gracefully when a scheme has no test target** instead of failing — no more
+  forced `--skip-tests`.
+- `ship` **warns when a TestFlight build is missing export compliance** (set
+  `distribute.uses_nonexempt_encryption` to declare it).
+- Docs: README npm section + user-framed **Status** table; clearer Homebrew tap-trust note.
+- Release tooling: `scripts/release.sh` syncs the README + CHANGELOG to the public tap and promotes the
+  changelog idempotently.
 
 ## [0.2.1] - 2026-06-17
 
