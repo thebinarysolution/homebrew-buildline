@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.3.1](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.3.1) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.0](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.0) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one

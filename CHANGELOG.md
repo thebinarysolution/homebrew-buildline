@@ -7,6 +7,14 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-30
+
+- `ship`: **fix TestFlight "Missing Compliance"** — the export-compliance declaration is now applied
+  *after* the build finishes processing and confirmed to clear before the build is distributed. (A
+  patch sent during processing did not persist, and changing `usesNonExemptEncryption` makes App Store
+  Connect re-process the build, so the old approach left builds stuck Missing Compliance.) New
+  `ship --exempt` / `--non-exempt` flags declare encryption use from the CLI.
+
 ## [0.3.1] - 2026-06-18
 
 - `build`/`ship`: **reuse an existing `.xcarchive`** instead of re-archiving (`--reuse-archive` /
