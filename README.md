@@ -95,8 +95,12 @@ buildline submit --confirm     # actually send for App Store review
 Two conveniences on `ship`: if a `.xcarchive` already exists it offers to **reuse it** instead of
 re-running the slow `xcodebuild archive` (`--reuse-archive` / `--new-archive` to skip the prompt); and
 if `distribute.beta_groups` isn't set, it **lists your TestFlight groups and saves your choice** to
-`buildline.yml`. To clear TestFlight's "Missing Compliance", set
-`distribute.uses_nonexempt_encryption: false` (most apps) — `ship` declares it on each new build.
+`buildline.yml`. To clear TestFlight's "Missing Compliance", pass `buildline ship --exempt` (most
+apps — only standard HTTPS/TLS) or set `distribute.uses_nonexempt_encryption: false`; `ship` waits for
+the build to finish processing, declares export compliance, and **confirms the build has left Missing
+Compliance before distributing it** (the declaration is applied post-processing because Apple re-runs
+processing when it changes). The zero-race alternative is to set `ITSAppUsesNonExemptEncryption` in your
+Info.plist, so the build self-declares during its first processing and never goes Missing Compliance.
 
 ## `buildline.yml` reference
 
@@ -127,7 +131,7 @@ signing:                        # buildline sign setup / reproducible signing
 
 distribute:                     # buildline ship (TestFlight)
   beta_groups: ["External Testers"]
-  uses_nonexempt_encryption: false
+  uses_nonexempt_encryption: false   # clears "Missing Compliance" (or pass ship --exempt)
 
 submit:                         # buildline submit (App Store)
   primary_locale: en-US
@@ -186,7 +190,7 @@ Verify with `buildline sign status`.
 | `buildline sign setup` | Create/fetch the cert + profile at Apple, store them encrypted, push. |
 | `buildline sign status` | Compare the local store against App Store Connect. |
 | `buildline sign import --p12 <f>` | Import an existing identity into the store. |
-| `buildline ship` | test → resolve build number → sign → archive → export → upload → poll → beta group. |
+| `buildline ship` | test → resolve build number → sign → archive → export → upload → poll → clear export compliance → beta group. `--exempt`/`--non-exempt` declare encryption use. |
 | `buildline submit` | Push metadata + screenshots, prepare the version, attach the build; `--confirm` sends it for review. |
 
 On an **Android** project the same commands run the Gradle + Google Play equivalents
