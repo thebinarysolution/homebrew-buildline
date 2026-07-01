@@ -7,6 +7,18 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.1] - 2026-07-01
+
+- `ship`: **fix TestFlight "Missing Compliance" for real** — wait for App Store Connect to actually
+  evaluate the build (its beta-detail state becomes `MISSING_EXPORT_COMPLIANCE`) before declaring
+  export compliance, then confirm it clears. v0.4.0 patched the moment the build turned `VALID`, but a
+  fast build reports `VALID` before Apple evaluates it, so the declaration didn't persist and the
+  build stayed Missing Compliance. The `processing` step now waits out the real evaluation.
+- **Store-passphrase prompt**: when `signing.storage.passphrase` can't be resolved, `build`/`ship`/
+  `sign setup` prompt for it once, save it to the macOS Keychain, and point `buildline.yml` at
+  `keychain:buildline-store-passphrase` — so later runs proceed without re-exporting it. In CI (no
+  TTY) a missing passphrase stays a clear error. `sign setup --save-passphrase` also persists the ref.
+
 ## [0.4.0] - 2026-06-30
 
 - `ship`: **fix TestFlight "Missing Compliance"** — the export-compliance declaration is now applied

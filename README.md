@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.4.0](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.0) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.1](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.1) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -178,7 +178,10 @@ keep in a private repo shared across machines (the Fastlane `match` model).
    **An env var** (CI): `export ASC_KEY_P8="$(cat AuthKey_2X9R4HXF34.p8)"` → `key: env:ASC_KEY_P8`
 
 The store passphrase is provided the same way (`passphrase: env:BUILDLINE_STORE_PASSPHRASE`, etc.).
-Verify with `buildline sign status`.
+Verify with `buildline sign status`. On a dev machine you don't have to export it every session: if
+the reference can't be resolved, `build`/`ship`/`sign setup` **prompt for it once, save it to the
+macOS Keychain, and rewrite `signing.storage.passphrase` to `keychain:buildline-store-passphrase`** so
+later runs just proceed (in CI — no TTY — a missing passphrase is a clear error instead).
 
 ## Commands
 
