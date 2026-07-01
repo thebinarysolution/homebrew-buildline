@@ -451,6 +451,7 @@ isn't supported — to undo, move the dist-tag back with `npm dist-tag`.
 | `App Store Connect rejected the API key (401)` | check `signing.asc_key.{key_id,issuer_id}` and that the `.p8` resolves; the key needs App Manager/Admin. |
 | `no app record for <id>` | create the app once at App Store Connect → Apps → ＋ (the API cannot create app records). |
 | `this build number is already on App Store Connect` | bump `ios.build_number` or let it auto-increment. |
+| Build **still shows "Missing Compliance"** in TestFlight even with `--exempt` / `uses_nonexempt_encryption` | your app ships a **hand-maintained `Info.plist`** (common with React Native). Xcode's *"App Uses Non-Exempt Encryption"* **build setting is NOT merged into a manual plist**, so every build ships with no declaration. Add the key **`ITSAppUsesNonExemptEncryption`** as a real Boolean **`false`** directly in that `Info.plist`, then confirm on the built app: `/usr/libexec/PlistBuddy -c "Print :ITSAppUsesNonExemptEncryption" <App>.app/Info.plist` prints `false`. (RN can strip it on `pod install` — re-assert it in a Podfile `post_install` hook if it vanishes.) |
 | `multiple schemes found` | set `ios.scheme`, or pass `--scheme` to `init`. |
 | `found both an Xcode project and a Gradle project` | set `platform: ios` or `platform: android` in `buildline.yml`. |
 | Play `permission denied` (401/403) | grant the service account release access in Play Console → Users and permissions, and confirm the app exists. |
