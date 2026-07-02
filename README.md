@@ -306,13 +306,26 @@ android:
 
 ### Providing the Play service-account key
 
-1. **Google Cloud Console** → pick or create a project → **APIs & Services → Library** → enable the
-   **Google Play Android Developer API**.
-2. **IAM & Admin → Service Accounts** → create a service account → **Keys → Add key → JSON** →
-   download the JSON.
-3. **Play Console → Users and permissions → Invite new user** → enter the service-account email →
-   grant at least **Release to testing tracks** (for `ship`) and **Release to production** (for
-   `submit`) on your app. Permission changes can take a few minutes to propagate.
+There are **two separate permission screens**, and the confusing one — Google Cloud's IAM "role" — is
+the one you **skip**. Access for publishing is granted in the **Play Console**, not in Google Cloud.
+
+1. **Enable the API** — [console.cloud.google.com/apis/library/androidpublisher.googleapis.com](https://console.cloud.google.com/apis/library/androidpublisher.googleapis.com)
+   → select your project → **Enable** the *Google Play Android Developer API*.
+2. **Create the service account** — [console.cloud.google.com/iam-admin/serviceaccounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
+   → **Create service account** → name it → on the **"Grant this service account access to project
+   (optional)"** step, leave the role **blank** and click **Continue → Done** — *no Cloud IAM role is
+   needed for publishing.* Then open the account → **Keys → Add key → Create new key → JSON** and
+   download it. (The email looks like `name@project-id.iam.gserviceaccount.com`.)
+3. **Grant Play permissions** — [play.google.com/console → Users and permissions](https://play.google.com/console/u/0/developers/users-and-permissions)
+   → **Invite new user** → paste the service-account email → under **App permissions**, grant it to
+   *your app* and enable:
+   - **Release to testing tracks** + **Manage testing tracks and edit tester lists** — for `ship`
+   - **Release to production, exclude devices, and use Play App Signing** — for `submit`
+   - **Manage store presence** — for `submit` metadata/screenshots
+   - **View app information and download bulk reports (read-only)** — to read app data / resolve version codes
+
+   (Simplest for first setup: grant **Admin (all permissions)** for that one app, confirm the pipeline
+   works, then narrow to the list above.) Permission changes can take a few minutes to propagate.
 4. Reference the JSON in `buildline.yml` (same model as the ASC key) — pick one:
    - **A file** (`chmod 600`): `service_account_json: file:~/secrets/play-sa.json`
    - **An env var** (CI): `export PLAY_SA_JSON="$(cat play-sa.json)"` → `service_account_json: env:PLAY_SA_JSON`
