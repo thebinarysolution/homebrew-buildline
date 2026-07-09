@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.4.1](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.1) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.2](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.2) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -349,6 +349,29 @@ buildline sign setup     # creates (or reuses) keystores/keystore/upload.keystor
 One-time Play step the API can't do for you: **register the upload key with Play App Signing** (Play
 Console → your app → *Test and release → Setup → App signing*). New apps are usually enrolled at
 creation, and Play registers the upload certificate from your first signed upload.
+
+#### Already have an upload key? Import it
+
+If your app was **already published** (or the upload key was generated elsewhere), Play App Signing has
+a specific upload key registered, and it **rejects any build signed with a different key**:
+
+```
+The Android App Bundle was signed with the wrong key.
+Found: SHA1 <buildline's generated key>, expected: SHA1 <your registered upload key>
+```
+
+`sign setup` generates a *new* key, which is wrong for an existing app — you must sign with the
+**registered** one. Point `android.signing.{key_alias,keystore_password,key_password}` at that
+keystore's values, then import it:
+
+```sh
+buildline sign import --keystore /path/to/upload-keystore.jks
+```
+
+buildline validates the keystore opens with your alias/password and prints its **SHA1** — confirm it
+matches the fingerprint under *Play Console → App integrity → App signing → Upload key certificate*
+before you `ship`. (Lost the keystore entirely? Use Play Console's **upload key reset** instead —
+Google reviews it, then buildline's generated key becomes the registered one.)
 
 ### Metadata & screenshots (for `buildline submit`)
 

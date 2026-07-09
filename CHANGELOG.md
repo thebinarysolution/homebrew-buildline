@@ -7,6 +7,15 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.2] - 2026-07-09
+
+- **`buildline sign import --keystore`** (Android): import an existing Play **upload keystore** into the
+  encrypted store, so buildline signs with the key Play already trusts instead of the fresh one
+  `sign setup` generates. It validates the keystore opens with your alias/password and prints the key's
+  **SHA1** to confirm against Play App Signing. Fixes *"The Android App Bundle was signed with the wrong
+  key"* for apps that already have a registered upload key. `sign import` is now platform-aware —
+  `--p12` for iOS, `--keystore` for Android.
+
 ## [0.4.1] - 2026-07-01
 
 - `ship`: **fix TestFlight "Missing Compliance" for real** — wait for App Store Connect to actually
