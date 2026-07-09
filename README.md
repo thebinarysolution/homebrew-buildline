@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.4.5](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.5) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.6](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.6) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -92,10 +92,12 @@ buildline submit               # stage metadata/screenshots + version (does NOT 
 buildline submit --confirm     # actually send for App Store review
 ```
 
-Two conveniences on `ship`: if a `.xcarchive` already exists it offers to **reuse it** instead of
-re-running the slow `xcodebuild archive` (`--reuse-archive` / `--new-archive` to skip the prompt); and
-if `distribute.beta_groups` isn't set, it **lists your TestFlight groups and saves your choice** to
-`buildline.yml`. To clear TestFlight's "Missing Compliance", pass `buildline ship --exempt` (most
+A few conveniences on `ship`: before building, it **shows the marketing version and next build number
+and lets you confirm or change them** (press Enter to accept, or type e.g. `1.5.8`) — buildline
+auto-bumps the numeric build number but leaves the marketing version to you; if a `.xcarchive` already
+exists it offers to **reuse it** instead of re-running the slow `xcodebuild archive` (`--reuse-archive`
+/ `--new-archive` to skip the prompt); and if `distribute.beta_groups` isn't set, it **lists your
+TestFlight groups and saves your choice** to `buildline.yml`. To clear TestFlight's "Missing Compliance", pass `buildline ship --exempt` (most
 apps — only standard HTTPS/TLS) or set `distribute.uses_nonexempt_encryption: false`; `ship` waits for
 the build to finish processing, declares export compliance, and **confirms the build has left Missing
 Compliance before distributing it** (the declaration is applied post-processing because Apple re-runs

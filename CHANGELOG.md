@@ -7,6 +7,14 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.6] - 2026-07-09
+
+- `ship` (iOS): **confirm the version before building** — on a terminal, show the marketing version
+  (read from the project) and the next build number (from App Store Connect) and let the user accept
+  (Enter) or type replacements, then pin them for the build. Mirrors the Android prompt: buildline
+  auto-increments the build number but never the marketing version, so this is how you bump
+  `1.5.7 → 1.5.8`. No prompt in CI (no TTY) or when reusing an archive.
+
 ## [0.4.5] - 2026-07-09
 
 - `ship` (Android): **confirm the version before building** — on a terminal, show the resolved version
