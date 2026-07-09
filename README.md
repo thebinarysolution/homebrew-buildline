@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.4.3](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.3) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.4](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.4) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -309,21 +309,36 @@ android:
 buildline resolves the next version code (`highest at Play + 1`) and passes it to Gradle as
 `-PversionCode` / `-PversionName` — **but that only takes effect if your `build.gradle` reads those
 properties.** A hardcoded `versionCode 1` (the React Native / Android template default) silently
-ignores it, so every upload carries the same code and never bumps. Wire it once in
-`android/app/build.gradle`:
+ignores it, so every upload carries the same code and never bumps. Wire it in
+`android/app/build.gradle` — compute the values in **plain Groovy above `android {`**. Do **not** use
+the inline `versionCode (… ?: N) as Integer` form inside `defaultConfig`: the AGP DSL parser chokes on
+it with a *"Value is null"* evaluation error. This form is robust:
 
 ```gradle
+def resolvedVersionCode = (project.findProperty("versionCode") ?: "1").toString().toInteger()
+def resolvedVersionName = (project.findProperty("versionName") ?: "1.0").toString()
+
 android {
   defaultConfig {
-    versionCode (project.findProperty("versionCode") ?: 1) as Integer
-    versionName project.findProperty("versionName") ?: "1.0"
+    versionCode resolvedVersionCode
+    versionName resolvedVersionName
   }
 }
 ```
 
-(Kotlin DSL: `versionCode = (findProperty("versionCode") as String? ?: "1").toInt()`.) `ship` warns
-in its summary if it detects a hardcoded `versionCode` so you're not left wondering why the number
-never moves. Alternatively, pin `android.version_code` in `buildline.yml` and manage it yourself.
+(Kotlin DSL: `val resolvedVersionCode = (findProperty("versionCode") as String? ?: "1").toInt()`, then
+`versionCode = resolvedVersionCode`.) `ship` warns in its summary if it detects a hardcoded
+`versionCode`, so you're not left wondering why the number never moves. Alternatively, pin
+`android.version_code` in `buildline.yml` and manage it yourself.
+
+### Reusing the build & cleanup
+
+`ship` mirrors iOS's archive reuse. If an `.aab`/`.apk` already exists (e.g. a previous `ship` failed
+*after* building), it offers to **reuse it** instead of re-running the slow Gradle build —
+`--reuse-build` / `--new-build` skip the prompt (CI builds fresh unless `--reuse-build`). After a
+**successful upload the artifact is deleted** so it can't be reused stale; pass `--keep-build` to keep
+it. Net effect: a normal ship builds → uploads → cleans up, while a failed ship leaves the `.aab` for a
+fast `buildline ship --reuse-build` retry.
 
 ### Providing the Play service-account key
 

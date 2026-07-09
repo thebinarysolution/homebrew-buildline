@@ -7,6 +7,15 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.4] - 2026-07-09
+
+- `ship` (Android): **reuse an existing `.aab`/`.apk`** instead of rebuilding (`--reuse-build` /
+  `--new-build`, or a prompt on a TTY), and **delete the artifact after a successful upload**
+  (`--keep-build` to keep it). A failed ship leaves the artifact for a fast `--reuse-build` retry.
+- docs/warning: the version-code wiring now uses a **plain-Groovy `def` above `android {`** — the
+  inline `versionCode (… ?: N) as Integer` form inside `defaultConfig` fails AGP evaluation with a
+  *"Value is null"* error. The ship summary's hint now shows the robust form.
+
 ## [0.4.3] - 2026-07-09
 
 - `ship` (Android): **warn when `build.gradle` hardcodes `versionCode`**, so a resolved version code
