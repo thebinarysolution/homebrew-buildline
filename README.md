@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.4.2](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.2) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.3](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.3) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -303,6 +303,27 @@ android:
     changes_not_sent_for_review: false   # true = commit but hold for manual review in Console
     # countries: ["US", "GB"]       # optional country targeting
 ```
+
+### Auto-incrementing the version code
+
+buildline resolves the next version code (`highest at Play + 1`) and passes it to Gradle as
+`-PversionCode` / `-PversionName` — **but that only takes effect if your `build.gradle` reads those
+properties.** A hardcoded `versionCode 1` (the React Native / Android template default) silently
+ignores it, so every upload carries the same code and never bumps. Wire it once in
+`android/app/build.gradle`:
+
+```gradle
+android {
+  defaultConfig {
+    versionCode (project.findProperty("versionCode") ?: 1) as Integer
+    versionName project.findProperty("versionName") ?: "1.0"
+  }
+}
+```
+
+(Kotlin DSL: `versionCode = (findProperty("versionCode") as String? ?: "1").toInt()`.) `ship` warns
+in its summary if it detects a hardcoded `versionCode` so you're not left wondering why the number
+never moves. Alternatively, pin `android.version_code` in `buildline.yml` and manage it yourself.
 
 ### Providing the Play service-account key
 

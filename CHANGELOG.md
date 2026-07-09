@@ -7,6 +7,13 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.3] - 2026-07-09
+
+- `ship` (Android): **warn when `build.gradle` hardcodes `versionCode`**, so a resolved version code
+  that Gradle silently ignores (the app never bumps) is surfaced in the ship summary with the one-line
+  fix, instead of shipping the same code every time. buildline already passes `-PversionCode` /
+  `-PversionName`; this catches projects that don't read them. README documents the required wiring.
+
 ## [0.4.2] - 2026-07-09
 
 - **`buildline sign import --keystore`** (Android): import an existing Play **upload keystore** into the
