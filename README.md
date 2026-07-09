@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.4.4](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.4) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.5](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.5) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -330,6 +330,19 @@ android {
 `versionCode = resolvedVersionCode`.) `ship` warns in its summary if it detects a hardcoded
 `versionCode`, so you're not left wondering why the number never moves. Alternatively, pin
 `android.version_code` in `buildline.yml` and manage it yourself.
+
+**Confirming the version before a ship.** buildline auto-increments the numeric *version code*, but
+the *version name* (marketing version, e.g. `1.5.7`) is a human decision it never bumps on its own. So
+on a terminal, `ship` shows both and lets you accept or change them before building:
+
+```
+buildline will ship this release — press Enter to accept a value, or type a new one:
+  version name [1.5.7]: 1.5.8
+  version code [58]:
+```
+
+Press Enter to keep a value, or type a new one (e.g. bump the version name to `1.5.8`). In CI (no TTY)
+there's no prompt — the version code auto-resolves and the version name stays as configured.
 
 ### Reusing the build & cleanup
 
