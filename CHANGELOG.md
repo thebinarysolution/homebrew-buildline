@@ -7,6 +7,13 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.7] - 2026-07-10
+
+- App Store Connect: **retry transient failures** (intermittent `500 UNEXPECTED_ERROR`, `429` rate
+  limits, network blips) with exponential backoff instead of failing the whole `ship`/`submit`. A `429`
+  retries on any request; a `5xx`/network error retries only idempotent reads, so a mutating call is
+  never silently repeated. Real errors (`401`, not-found, validation) still fail immediately.
+
 ## [0.4.6] - 2026-07-09
 
 - `ship` (iOS): **confirm the version before building** — on a terminal, show the marketing version
