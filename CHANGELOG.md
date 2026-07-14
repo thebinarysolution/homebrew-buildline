@@ -7,6 +7,17 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.4.8] - 2026-07-14
+
+- Signing (iOS + Android): **stop silently losing a local signing store.** A `path:` store holds the
+  only copy of the signing private key (Apple never re-issues it); a gitignored/untracked store
+  directory is silently lost on a fresh clone, a branch switch, or `git clean`, after which Apple
+  still has the certificate but the key is gone and `sign setup` reports the cert as orphaned.
+  BuildLine no longer re-creates an empty store on the fly: `build`/`ship`/`submit` now fail loudly
+  with the likely cause and the recovery paths (import the `.p12`, or `sign setup --revoke-existing`),
+  and `sign setup` warns when the store path is gitignored — only `sign setup`/`sign import` may
+  initialize a store.
+
 ## [0.4.7] - 2026-07-10
 
 - App Store Connect: **retry transient failures** (intermittent `500 UNEXPECTED_ERROR`, `429` rate

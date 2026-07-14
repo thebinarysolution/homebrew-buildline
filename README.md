@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.4.7](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.7) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.4.8](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.4.8) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -159,6 +159,13 @@ The **signing certificate's private key** — the one Apple won't re-issue — i
 stores, and it is always AES-256-GCM encrypted (PBKDF2 from your store passphrase). The signing store
 is a directory or git repo that holds only encrypted blobs plus non-secret metadata, so it is safe to
 keep in a private repo shared across machines (the Fastlane `match` model).
+
+> ⚠️ **Don't gitignore a local `path:` store.** It holds the only copy of a private key Apple will
+> never re-issue. A gitignored/untracked store directory is silently lost on a fresh clone, a branch
+> switch, or `git clean` — after which Apple still has the certificate but the key is gone, and
+> `sign setup` will report the cert as orphaned. Because the store is encrypted, **commit it** (or
+> point `signing.storage` at a `git:` remote). `sign setup` now warns when the store is gitignored,
+> and `build`/`ship`/`submit` fail loudly rather than silently re-creating an empty store.
 
 ## Providing your App Store Connect API key
 
