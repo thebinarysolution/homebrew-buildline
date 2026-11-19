@@ -5,9 +5,9 @@
 class Buildline < Formula
   desc "CI/CD for iOS apps — one config, app in the store"
   homepage "https://github.com/thebinarysolution/homebrew-buildline"
-  version "0.5.0"
-  url "https://github.com/thebinarysolution/homebrew-buildline/releases/download/v0.5.0/buildline_0.5.0_darwin_all.tar.gz"
-  sha256 "47169128b8a80ec4a24d387004160d93d7ed493e076ebb37efa0a789281040fe"
+  version "0.6.0"
+  url "https://github.com/thebinarysolution/homebrew-buildline/releases/download/v0.6.0/buildline_0.6.0_darwin_all.tar.gz"
+  sha256 "36232452115b69887315a96b1dd998dd5c548d309f722f4a76401baa63129178"
 
   depends_on :macos
 

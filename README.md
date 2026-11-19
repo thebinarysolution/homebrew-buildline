@@ -1,6 +1,6 @@
 # BuildLine
 
-<!-- RELEASE -->**Latest release:** [v0.5.0](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.5.0) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
+<!-- RELEASE -->**Latest release:** [v0.6.0](https://github.com/thebinarysolution/homebrew-buildline/releases/tag/v0.6.0) · [changelog](CHANGELOG.md)<!-- /RELEASE -->
 
 **One config file, zero setup, app in the store.** BuildLine is a single-binary CLI that takes an
 iOS or Android app — or an npm package — from source to its store/registry, driven by one
@@ -166,6 +166,15 @@ keep in a private repo shared across machines (the Fastlane `match` model).
 > `sign setup` will report the cert as orphaned. Because the store is encrypted, **commit it** (or
 > point `signing.storage` at a `git:` remote). `sign setup` now warns when the store is gitignored,
 > and `build`/`ship`/`submit` fail loudly rather than silently re-creating an empty store.
+
+**Apps with extensions** (widgets, Network Extensions, share extensions, watch apps, App Clips) need
+no extra config. BuildLine reads the Xcode project's targets and signs the app plus every embedded
+target whose bundle id starts with `app.bundle_id`. `sign setup` creates one App Store profile per
+bundle id, all on the same certificate. It also enables any capability a target's `.entitlements`
+needs (App Groups, Network Extensions, Push, …) and checks the profile grants it. The API can't assign
+a specific App Group or iCloud container to an App ID, so if one is missing, `sign setup` stops and
+says which portal setting to change. At build time each target gets its own profile (Pods targets get
+none), and the export maps every bundle in the archive to its profile.
 
 ## Providing your App Store Connect API key
 

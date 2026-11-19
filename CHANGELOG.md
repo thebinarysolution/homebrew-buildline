@@ -7,6 +7,25 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-19
+
+- iOS: **support apps with app extensions** (widgets, Network Extensions, share extensions, watch
+  apps, App Clips). Before, BuildLine signed only the main target, so archive/export failed for any
+  app that embeds an extension. It now finds every signable target in the Xcode project whose bundle
+  id starts with `app.bundle_id`, with no new `buildline.yml` fields.
+  - `sign setup` creates or reuses one App Store profile per bundle id on the shared distribution
+    certificate. It enables capabilities each target's `.entitlements` needs through the App Store
+    Connect API, checks the profile actually grants them, and regenerates a stored profile that no
+    longer does. When an App Group or iCloud container isn't assigned to the App ID (the API can't
+    do that), it stops and says which portal setting to change.
+  - `build`/`ship` install every profile and give each target its own profile at archive time, so
+    the app and each extension are signed with their own profile and Pods targets get none. The
+    `ExportOptions.plist` maps every bundle found in the archive to its profile. A bundle with no
+    profile fails with a "run `buildline sign setup`" message.
+  - `sign status` and the `sign setup` summary list every target's profile.
+  - Single-target projects build with exactly the same `xcodebuild` arguments and export options as
+    before.
+
 ## [0.5.0] - 2026-11-19
 
 - iOS `submit`: **refuse a build whose signing certificate was revoked.** TestFlight accepts a build
