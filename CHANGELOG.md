@@ -7,6 +7,22 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-19
+
+- iOS `submit`: **refuse a build whose signing certificate was revoked.** TestFlight accepts a build
+  while its certificate is valid, but App Review re-checks the signature, so a build signed with a
+  certificate revoked after upload is rejected with ITMS-90035 "Invalid Signature". `submit` now
+  compares the build's upload date with the creation dates of the team's active distribution
+  certificates. If none existed when the build was uploaded, it stops before staging anything and
+  says to re-run `buildline ship`. If certificates can't be listed, it only warns.
+- Signing: **catch a half-present store.** If `buildline-store.json` lists a certificate but its key
+  or cert `.enc` files are missing (usually a gitignored `certs/` directory with the index committed),
+  `sign setup`, `build`, and `ship` now stop with the missing files, the gitignore cause, and the safe
+  recovery. Before, the problem surfaced later as "run 'buildline sign setup'".
+- Signing: **correct the revoke guidance.** The orphaned-certificate message no longer says
+  revoking is harmless. It explains that builds not yet approved become invalid (ITMS-90035), and
+  `--revoke-existing` logs the same warning.
+
 ## [0.4.8] - 2026-07-14
 
 - Signing (iOS + Android): **stop silently losing a local signing store.** A `path:` store holds the
