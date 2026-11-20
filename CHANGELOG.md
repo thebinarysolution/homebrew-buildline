@@ -7,6 +7,16 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-20
+
+- Signing: **fix `sign setup` failing at the profile step for an imported certificate.** `sign import`
+  stores a certificate under its serial, because Apple doesn't tell import the certificate's App
+  Store Connect ID. `sign setup` then sent that serial as the certificate ID when creating a profile,
+  and Apple rejected it with ENTITY_ERROR ("no current certificates … matching the provided
+  certificate IDs"). `sign setup` now looks the store certificate up at Apple by serial, uses Apple's
+  certificate ID, and saves it in the store. If Apple no longer has the certificate, it stops and
+  names the serial and how to recover.
+
 ## [0.6.0] - 2026-11-19
 
 - iOS: **support apps with app extensions** (widgets, Network Extensions, share extensions, watch
