@@ -7,6 +7,15 @@ release and uses it as the GitHub release notes.
 <!-- NEXT: scripts/release.sh inserts the new version section directly below this line -->
 ## [Unreleased]
 
+## [0.6.2] - 2026-11-21
+
+- Android: **find the `.aab`/`.apk` in Flutter projects.** The Flutter app template (Flutter 3.29+)
+  moves the Gradle build directory to the Flutter project root's `build/`, so the bundle is written
+  to `build/app/outputs/…` instead of `android/app/build/outputs/…`. `build` and `ship` ran Gradle
+  successfully, then failed with "no .aab found", and `--reuse-build` never found an artifact to
+  reuse. BuildLine now checks both locations and picks the most recently written artifact, so a stale
+  copy in the other place is never used.
+
 ## [0.6.1] - 2026-11-20
 
 - Signing: **fix `sign setup` failing at the profile step for an imported certificate.** `sign import`
